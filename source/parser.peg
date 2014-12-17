@@ -3,29 +3,40 @@
  * "2*(3+4)". The parser generated from this grammar then computes their value.
  */
 {
-	tasks: 1100110011,
-	ip: "0x2FFD0015",
-	zip: 777777,
-	node: 1114,
-	sn: "adf1234aa5",
-	mac: "34a04b55aa55",
-	model: "4200hd"
+	var test = {
+		tasks: 1100110011,
+		ip: "0x2FFD0015",
+		zip: 777777,
+		node: 1114,
+		sn: "adf1234aa5",
+		mac: "34a04b55aa55",
+		model: "4200hd"
+	};
+	
+	var utils = require("../helpers/utils");
 }
 
 start
   = additive
 
+equals = left:hexdecimal "==" right:integer { return +(utils.decimalFromHex(left) == right); }
+  
 additive
-  = left:multiplicative "+" right:additive { return left + right; }
-  / multiplicative
+	= left:multiplicative "+" right:additive { return left + right; }
+	/ equals
+	/ multiplicative
 
 multiplicative
-  = left:primary "*" right:multiplicative { return left * right; }
-  / primary
+	= left:primary "*" right:multiplicative { return left * right; }
+	/ primary
 
 primary
-  = integer
-  / "(" additive:additive ")" { return additive; }
+	= integer
+	/ "(" additive:additive ")" { return additive; }
+
+tasks "integer" = digits:[0-9]+ { return test.tasks; }
+
+hexdecimal = "0x" string:[A-Z0-9]+ { return string.join(""); }
 
 integer "integer"
   = digits:[0-9]+ { return parseInt(digits.join(""), 10); }

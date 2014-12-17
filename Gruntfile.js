@@ -13,12 +13,12 @@ module.exports = function (grunt) {
 			example: {
 				src: "source/parser.peg",
 				dest: "build/parser.js",
-				//options: { exportVar: "source/example.parser" }
+				options: { }
 			}
 		},
 		watch: {
 			app: {
-				files: ["source/parser.peg", 'tests/**/*.js'],
+				files: ["source/parser.peg", "tests/**/*.js", "helpers/**/*.js"],
 				tasks: ['peg', 'mochaTest'],
 			}
 		}
