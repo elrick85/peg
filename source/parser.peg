@@ -17,26 +17,45 @@
 }
 
 start
-  = additive
+	= main
 
-equals = left:hexdecimal "==" right:integer { return +(utils.decimalFromHex(left) == right); }
-  
-additive
-	= left:multiplicative "+" right:additive { return left + right; }
+main
+	= leftCondition
 	/ equals
-	/ multiplicative
+	/ additive
 
-multiplicative
-	= left:primary "*" right:multiplicative { return left * right; }
+equals
+	= left:additive space "==" space right:primary { return +(left == right); }
+	
+leftCondition
+	= left:additive space ">" space right:integer { return +(left > right); }
+	
+additive
+	= left:primary space "+" space right:additive { return left + right; }
+	/ left:primary right:negative { return left + right; }
 	/ primary
-
+	
 primary
-	= integer
-	/ "(" additive:additive ")" { return additive; }
+	= "rand(" space max:integer space ")" space { return utils.rand(0, max-1); }
+	/ s:hex { return utils.decimalFromHex(s); }
+	/ s:str "[" start:integer ":" stop:integer "]" { return s.substring(start,stop); }
+	/ s:str ".length" { return s.length }
+	/ s:str ".hex" { return "0x" + s }
+	/ hex
+	/ str
+	/ negative
+	/ integer
 
-tasks "integer" = digits:[0-9]+ { return test.tasks; }
 
-hexdecimal = "0x" string:[A-Z0-9]+ { return string.join(""); }
-
+str
+	= "'" string:[a-zA-Z0-9\"]+ "'" { return string.join(""); }
+negative
+	= "-" integer:integer { return -integer; }
+tasks "integer"
+	= digits:[0-9]+ { return test.tasks; }
+hex
+	= "0x" string:[a-zA-Z0-9]+ { return string.join(""); }
 integer "integer"
-  = digits:[0-9]+ { return parseInt(digits.join(""), 10); }
+	= digits:[0-9]+ { return parseInt(digits.join(""), 10); }
+space
+	= sps:[ ]* { return sps; }
