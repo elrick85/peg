@@ -20,42 +20,97 @@ start
 	= main
 
 main
-	= leftCondition
-	/ equals
+	= equalCondition
+	/ stringConcat
+	/ leftCondition
+	/ multiplicative
 	/ additive
+	
 
-equals
-	= left:additive space "==" space right:primary { return +(left == right); }
+equalCondition
+	= left:additive space "==" space right:additive { 
+		console.log("RULE EQ", left, right); 
+		return +(left == right); 
+	}
 	
 leftCondition
-	= left:additive space ">" space right:integer { return +(left > right); }
+	= left:additive space ">" space right:additive { 
+		return +(left > right); 
+	}
 	
 additive
-	= left:primary space "+" space right:additive { return left + right; }
-	/ left:primary right:negative { return left + right; }
+	= left:multiplicative space "+" space right:additive { 
+		console.log("RULE POSITIVE", left, right);
+		return left + right;
+	}
+	/ left:multiplicative space "-" space right:additive { 
+		console.log("RULE NEGATIVE", left, right);
+		return left - right; 
+	}
+	/ "-" space right:additive { 
+		var result = 0 - right;
+		console.log("RULE NEGATIVE", right, result);
+		return result; 
+	}
+	/ stringConcat
 	/ primary
-	
+
+stringConcat
+	= left:strings space "." space right:strings {
+		var result = left + right;
+		console.log("RULE CONCAT", left, right, result);
+		return result;
+	}
+
+multiplicative
+	= left:primary space "*" space right:multiplicative {
+		var result = left*right;
+		console.log("RULE MULTI: ", left, right, result);
+		return result;
+	}
+	/ primary
+
 primary
-	= "rand(" space max:integer space ")" space { return utils.rand(0, max-1); }
+	= rand
 	/ s:hex { return utils.decimalFromHex(s); }
-	/ s:str "[" start:integer ":" stop:integer "]" { return s.substring(start,stop); }
-	/ s:str ".length" { return s.length }
 	/ s:str ".hex" { return "0x" + s }
+	/ s:str ".length" { return s.length }
 	/ hex
-	/ str
-	/ negative
+	/ strings
 	/ integer
 
+strings
+	= s:str "[" start:integer ":" stop:integer "]" {
+		var result = s.substring(start, stop);
+		//console.log("RULE SUBSTRING: ", start, stop, result);
+		return result;
+	}
+	/ s:str "[:" stop:integer "]" {
+		var result = s.substring(0, stop);
+		//console.log("RULE SUBSTRING: ", 0, stop, result);
+		return result; 
+	}
+	/ s:str "[" start:integer ":]" { return s.substring(start, s.length); }
+	/ str
 
-str
-	= "'" string:[a-zA-Z0-9\"]+ "'" { return string.join(""); }
-negative
-	= "-" integer:integer { return -integer; }
-tasks "integer"
+
+
+rand "random"
+	= "rand(" space max:integer space ")" space { return utils.rand(0, max-1); }
+str "string"
+	= "'" s:[a-zA-Z0-9\" ]* "'" {
+		var result = s.join("");
+		//console.log("STRING: ", result);
+		return result;
+	}
+tasks
 	= digits:[0-9]+ { return test.tasks; }
-hex
+hex "hex"
 	= "0x" string:[a-zA-Z0-9]+ { return string.join(""); }
 integer "integer"
-	= digits:[0-9]+ { return parseInt(digits.join(""), 10); }
-space
+	= digits:[0-9]+ { 
+			console.log("INTEGER", digits); 
+			return parseInt(digits.join(""), 10); 
+		}
+space "space"
 	= sps:[ ]* { return sps; }

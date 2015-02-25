@@ -31,17 +31,33 @@ describe("Parser tests", function(){
 		var result = parser.parse("'12345af'.hex == 0x12345af");
 		expect(result).to.equal(1);
 	});
-	
-	it("'text \"special\"' == 'text \"special\"'", function(){
-		var result = parser.parse("'text \"special\"' == 'text \"special\"'");
-		expect(result).to.equal(1);
-	});
-	it("'text with \"special characters\"'[1:4] == 'ext'", function(){
+
+	it("'text with ''special characters'''[1:4] == 'ext'", function(){
 		var result = parser.parse("'text with \"special characters\"'[1:4] == 'ext'");
 		expect(result).to.equal(1);
 	});
-	
-	/*
+
+	it("'text with ''special characters'''[1:1] == ''", function(){
+		var result = parser.parse("'text with \"special characters\"'[1:1] == ''");
+		expect(result).to.equal(1);
+	});
+
+	it("'asqw'[:2] . 'df' == 'asdf'", function(){
+		var result = parser.parse("'asqw'[:2] . 'df' == 'asdf'");
+		expect(result).to.equal(1);
+	});
+
+	it("'asdf' == 'asqw'[2:] . 'df'", function(){
+		var result = parser.parse("'asdf' == 'asqw'[2:] . 'df'");
+		expect(result).to.equal(0);
+	});
+
+	it("3 * 2 - 1 == 5", function(){
+		var result = parser.parse("3 * 2 - 1 == 5");
+		expect(result).to.equal(1);
+	});
+
+/*
 expect(parse("'text with ''special characters'''[1:4] == 'ext'")).toBe(1);
 
 expect(parse("'text with ''special characters'''[1:1] == ''")).toBe(1);
@@ -51,6 +67,9 @@ expect(parse("'asqw'[:2] . 'df' == 'asdf'")).toBe(1);
 expect(parse("'asdf' == 'asqw'[2:] . 'df'")).toBe(0);
 
 expect(parse("3 * 2 - 1 == 5")).toBe(1);
+*/
+
+	/*
 
 expect(parse("47 << 24 + 253 << 16 + 0 << 8 + 46 == 0x2FFD002E")).toBe(1);
 

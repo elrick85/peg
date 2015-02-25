@@ -13,7 +13,9 @@ module.exports = function (grunt) {
 			example: {
 				src: "source/parser.peg",
 				dest: "build/parser.js",
-				options: { }
+				options: {
+					output: "source"
+				}
 			}
 		},
 		watch: {
