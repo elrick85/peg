@@ -4,11 +4,9 @@
  */
 {
 	var test = require("../source/config");
-	var utils = require("../helpers/utils");
 }
 
 start = extcondition / main
-
 main = conditions / actions
 
 extcondition
@@ -28,24 +26,31 @@ conditions
 	/ left:actions space "<" space right:actions { return +(left < right); }
 
 actions
-	= left:primary space "+" space right:actions { return left + right;	}
-    / left:primary space "-" space right:actions { return left - right;	}
+	= additive
     / primary
 
 primary	= hex / digitRules / stringRules
 
-digitRules
-	= division
-	/ left:digits space "*" space right:digits { return left*right; }
-	/ digits
+digitRules = multiplicative / primaryDigits
 
-subdivision
-	= space "/" space right:integer { return right; }
-division
-	=  left:integer right:subdivision+ {
+additive
+	= left:primary right:(subsubstriction / subadditive)+ {
 		right.unshift(left);
-		return right.reduce(function(v,c){ return v/c; });
+		left = right.reduce(function(v,c){return v+c});
+		return left;
 	}
+
+multiplicative
+	= left:primaryDigits right:(subdivision / submultiply)+ {
+		right.unshift(left);
+		left = right.reduce(function(v,c){return v*c});
+		return left;
+	}
+
+subdivision	= space "/" space right:primaryDigits { return 1/right; }
+submultiply	= space "*" space right:primaryDigits { return right; }
+subadditive = space "+" space right:primary {return +right;}
+subsubstriction = space "-" space right:primary {return -right;}
 
 stringRules
 	= s:strings ".length" { return s.length; }
@@ -57,17 +62,21 @@ concatStr
  	= left:strings space "." space right:concatStr { return left + right; }
 	/ strings
 
-digits
+primaryDigits
 	= rand
-    / left:integer space "<<" space right:primary { return left << right; }
-    / left:integer space ">>" space right:primary { return left >> right; }
-    / left:integer space "&" space right:integer { return left & right; }
-    / left:integer space "|" space right:integer { return left | right; }
-    / left:integer space "^" space right:primary { return left ^ right; }
-    / left:integer space "%" space right:primary { return left % right; }
-    / "-"right:integer { return 0 - right; }
-    / integer
-    / variables
+    / left:digits space "<<" space right:primary { return left << right; }
+    / left:digits space ">>" space right:primary { return left >> right; }
+    / left:digits space "&" space right:digits { return left & right; }
+    / left:digits space "|" space right:digits { return left | right; }
+    / left:digits space "^" space right:primary { return left ^ right; }
+    / left:digits space "%" space right:primary { return left % right; }
+    / digits
+
+digits
+	= hex
+	/ "-"right:(integer / integerVariables) { return 0 - right; }
+	/ integer
+	/ variables
 
 strings
 	= s:specialstr "[" start:integer ":" stop:integer "]" { return s.substring(start, stop); }
@@ -76,17 +85,22 @@ strings
 	/ specialstr
 
 specialstr = left:str* { return left.join(""); } / str
-rand "random" = "rand(" space max:integer space ")" space { return utils.rand(0, max-1); }
+rand "random" = "rand(" space max:integer space ")" space {
+	return  Math.floor(Math.random() * max - 1);
+}
 str "string" = "'" s:[a-zA-Z0-9\" ]* "'" { return s.join(""); }
 hex "hex" = "0x" string:[a-zA-Z0-9]+ { return "0x" + string.join(""); }
 integer "integer" = digits:[0-9]+ { return parseInt(digits.join(""), 10); }
 space "space" = sps:[ ]* { return sps; }
 
 variables
-	= variable:"tasks" { return test.tasks; }
+	= integerVariables
 	/ variable:"ip" { return test.ip; }
-	/ variable:"zip" { return test.zip; }
-	/ variable:"node" { return test.node; }
 	/ variable:"sn" { return test.sn; }
 	/ variable:"mac" { return test.mac; }
 	/ variable:"model" { return test.model; }
+
+integerVariables
+	= variable:"tasks" { return test.tasks; }
+	/ variable:"zip" { return test.zip; }
+	/ variable:"node" { return test.node; }

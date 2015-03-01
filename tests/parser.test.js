@@ -1,5 +1,4 @@
 var parser = require("../build/parser");
-var utils = require("../helpers/utils");
 var config = require("../source/config");
 
 var parse = function(expression){
@@ -17,7 +16,7 @@ var parse = function(expression){
 };
 
 describe("Parser tests", function(){
-	/*it("0x3E1==993", function(){
+	it("0x3E1==993", function(){
 		var result = parse("0x3E1==993");
 		expect(result).to.equal(1);
 	});
@@ -166,7 +165,7 @@ describe("Parser tests", function(){
 		var result = parse("tasks >= 0");
 		expect(result).to.equal(1);
 	});
-*/
+
 	it("2 - 3 - 5 == -6", function(){
 		var result = parse("2 - 3 - 5 == -6");
 		expect(result).to.equal(1);
@@ -176,7 +175,7 @@ describe("Parser tests", function(){
 		var result = parse("2 - 5 + 1 == -2");
 		expect(result).to.equal(1);
 	});
-/*
+
 	it("20 / 2 / 2 == 5", function(){
 		var result = parse("20 / 2 / 2 == 5");
 		expect(result).to.equal(1);
@@ -200,5 +199,5 @@ describe("Parser tests", function(){
 	it("-node + 24/2 + 0x5aF - 'hello'.length + 3 << 2 == 360", function(){
 		var result = parse("-node + 24/2 + 0x5aF - 'hello'.length + 3 << 2 == 360");
 		expect(result).to.equal(1);
-	});*/
+	});
 });
