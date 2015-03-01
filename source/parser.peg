@@ -25,45 +25,31 @@ conditions
 	/ left:actions space ">" space right:actions { return +(left > right); }
 	/ left:actions space "<" space right:actions { return +(left < right); }
 
-actions
-	= additive
-    / primary
-
-primary	= hex / digitRules / stringRules
-
-digitRules = multiplicative / primaryDigits
-
-additive
-	= left:primary right:(subsubstriction / subadditive)+ {
+actions	= left:primary right:(subsubstriction / subadditive)+ {
 		right.unshift(left);
 		left = right.reduce(function(v,c){return v+c});
 		return left;
 	}
+	/ primary
 
-multiplicative
-	= left:primaryDigits right:(subdivision / submultiply)+ {
+primary = left:primaryDigits right:(subdivision / submultiply)+ {
 		right.unshift(left);
 		left = right.reduce(function(v,c){return v*c});
 		return left;
 	}
+	/ primaryDigits
+	/ stringRules
 
 subdivision	= space "/" space right:primaryDigits { return 1/right; }
 submultiply	= space "*" space right:primaryDigits { return right; }
 subadditive = space "+" space right:primary {return +right;}
 subsubstriction = space "-" space right:primary {return -right;}
 
-stringRules
-	= s:strings ".length" { return s.length; }
-	/ s:strings ".hex" { return "0x" + s; }
-	/ concatStr
-	/ strings
-
-concatStr
- 	= left:strings space "." space right:concatStr { return left + right; }
-	/ strings
-
 primaryDigits
-	= rand
+	= s:specialstr ".hex" { return "0x" + s; }
+	/ s:specialstr space "." space right:specialstr ".length" { return (s+right).length; }
+	/ s:specialstr ".length" { return s.length; }
+	/ rand
     / left:digits space "<<" space right:primary { return left << right; }
     / left:digits space ">>" space right:primary { return left >> right; }
     / left:digits space "&" space right:digits { return left & right; }
@@ -78,12 +64,17 @@ digits
 	/ integer
 	/ variables
 
+stringRules
+ 	= left:strings right:substr* { return left + right.join(""); }
+ 	/ strings
+
 strings
 	= s:specialstr "[" start:integer ":" stop:integer "]" { return s.substring(start, stop); }
 	/ s:specialstr "[:" stop:integer "]" { return s.substring(0, stop);	}
 	/ s:specialstr "[" start:integer ":]" { return s.substring(start, s.length); }
 	/ specialstr
 
+substr = space "." space right:strings { return right; }
 specialstr = left:str* { return left.join(""); } / str
 rand "random" = "rand(" space max:integer space ")" space {
 	return  Math.floor(Math.random() * max - 1);
