@@ -1,5 +1,7 @@
 var parser = require("../build/parser");
 var utils = require("../helpers/utils");
+var config = require("../source/config");
+
 var parse = function(expression){
 	var result;
 
@@ -15,7 +17,7 @@ var parse = function(expression){
 };
 
 describe("Parser tests", function(){
-	it("0x3E1==993", function(){
+	/*it("0x3E1==993", function(){
 		var result = parse("0x3E1==993");
 		expect(result).to.equal(1);
 	});
@@ -34,12 +36,12 @@ describe("Parser tests", function(){
 		var result = parse("'asdf'.length == 4");
 		expect(result).to.equal(1);
 	});
-	
+
 	it("'asdf'.length > 4", function(){
 		var result = parse("'asdf'.length > 4");
 		expect(result).to.equal(0);
 	});
-	
+
 	it("'12345af'.hex == 0x12345af", function(){
 		var result = parse("'12345af'.hex == 0x12345af");
 		expect(result).to.equal(1);
@@ -105,11 +107,6 @@ describe("Parser tests", function(){
 		expect(result).to.equal(1);
 	});
 
-	it("5 + 2 == 7", function(){
-		var result = parse("5 + 2 == 7");
-		expect(result).to.equal(1);
-	});
-
 	it("'av' . 'er' == 'aver'", function(){
 		var result = parse("'av' . 'er' == 'aver'");
 		expect(result).to.equal(1);
@@ -125,82 +122,83 @@ describe("Parser tests", function(){
 		expect(result).to.equal(1);
 	});
 
-	/*
+	it("1 != 1", function(){
+		var result = parse("1 != 1");
+		expect(result).to.equal(0);
+	});
 
-expect(parse("'av' . 'er' == 'aver'")).toBe(1);
+	it("-44 >= 0 or not 0 <= 0", function(){
+		var result = parse("-44 >= 0 or not 0 <= 0");
+		expect(result).to.equal(0);
+	});
 
-expect(parse("'av' . 'er'.length == 4")).toBe(1);
-
-expect(parse("1 == 1")).toBe(1);
-
-expect(parse("1 != 1")).toBe(0);
-
-expect(parse("-44 >= 0 or not 0 <= 0")).toBe(0);
-
-expect(parse("-44 < 0 and 22 > 0")).toBe(1);
-
-expect(parse("-44 < 0 && 22 > 0")).toBe(1);
-
-expect(parse("-44 >= 0 || -5 <= -8")).toBe(0);
-
-expect(parse("ip >> 16 & 0xff >= 15")).toBe(1);
-
-expect(parse("zip == 1123 or zip > 100 and zip < 200")).toBe(0);
-
-expect(parse("node > 0")).toBe(1);
-
-expect(parse("tasks >= 0")).toBe(1);
-
-expect(parse("2 - 3 - 5 == -6")).toBe(1);
-
-expect(parse("2 - 5 + 1 == -2")).toBe(1);
-
-expect(parse("20 / 2 / 2 == 5")).toBe(1);
-
-expect(parse("'word'.length + 2 == 6")).toBe(1);
-
-expect(parse("2 + 'word'.length == 6")).toBe(1);
-
-expect(parse("-node + 24 + 0x5aF - 'hello'.length == 360")).toBe(1);
-
-expect(parse("-node + 24/2 + 0x5aF - 'hello'.length + 3 << 2 == 360")).toBe(1);
-	*/
-});
-
-describe("String tests", function(){
-	it("'test text' == 'test text'", function(){
-		var result = parse("'test text' == 'test text'");
+	it("-44 < 0 and 22 > 0", function(){
+		var result = parse("-44 < 0 and 22 > 0");
 		expect(result).to.equal(1);
 	});
-	it("'text ''special''' == 'text ''special'''", function(){
-		var result = parse("'text ''special''' == 'text ''special'''");
-		expect(result).to.equal(1);
-	});
-});
 
-describe("Shift tests", function(){
-	it("48<<2 == 192", function(){
-		var result = parse("48 << 2 == 192");
+	it("-44 < 0 && 22 > 0", function(){
+		var result = parse("-44 < 0 && 22 > 0");
 		expect(result).to.equal(1);
 	});
-	it("48 << 2 + 48 >> 2 == 204", function(){
-		var result = parse("48 << 2 + 48 >> 2 == 204");
-		expect(result).to.equal(1);
-	});
-});
 
-describe("Hex tests", function(){
-	it("from hexdecimal to decimal", function(){
-		var hexdecimal = "0x3E1";
-		var decimal = utils.decimalFromHex(hexdecimal);
-		
-		expect(decimal).to.equal(993);
+	it("-44 >= 0 || -5 <= -8", function(){
+		var result = parse("-44 >= 0 || -5 <= -8");
+		expect(result).to.equal(0);
 	});
-	
-	it("from decimal to hexdecimal", function(){
-		var decimal = 993;
-		var hexdecimal = utils.hexFromDecimal(decimal);
-		
-		expect(hexdecimal).to.equal("0x3E1");
+
+	it("ip >> 16 & 0xff >= 15", function(){
+		var result = parse("ip >> 16 & 0xff >= 15");
+		expect(result).to.equal(1);
 	});
+
+	it("zip == 1123 or zip > 100 and zip < 200", function(){
+		var result = parse("zip == 1123 or zip > 100 and zip < 200");
+		expect(result).to.equal(0);
+	});
+
+	it("node > 0", function(){
+		var result = parse("node > 0");
+		expect(result).to.equal(1);
+	});
+
+	it("tasks >= 0", function(){
+		var result = parse("tasks >= 0");
+		expect(result).to.equal(1);
+	});
+*/
+	it("2 - 3 - 5 == -6", function(){
+		var result = parse("2 - 3 - 5 == -6");
+		expect(result).to.equal(1);
+	});
+
+	it("2 - 5 + 1 == -2", function(){
+		var result = parse("2 - 5 + 1 == -2");
+		expect(result).to.equal(1);
+	});
+/*
+	it("20 / 2 / 2 == 5", function(){
+		var result = parse("20 / 2 / 2 == 5");
+		expect(result).to.equal(1);
+	});
+
+	it("'word'.length + 2 == 6", function(){
+		var result = parse("'word'.length + 2 == 6");
+		expect(result).to.equal(1);
+	});
+
+	it("2 + 'word'.length == 6", function(){
+		var result = parse("2 + 'word'.length == 6");
+		expect(result).to.equal(1);
+	});
+
+	it("-node + 24 + 0x5aF - 'hello'.length == 360", function(){
+		var result = parse("-node + 24 + 0x5aF - 'hello'.length == 360");
+		expect(result).to.equal(1);
+	});
+
+	it("-node + 24/2 + 0x5aF - 'hello'.length + 3 << 2 == 360", function(){
+		var result = parse("-node + 24/2 + 0x5aF - 'hello'.length + 3 << 2 == 360");
+		expect(result).to.equal(1);
+	});*/
 });

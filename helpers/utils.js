@@ -10,6 +10,16 @@ module.exports = (function() {
 		
 		rand: function(min, max){
 			return Math.floor(Math.random() * (max - min + 1)) + min;
+		},
+
+		reduce: function(arr, callback){
+			var i = 0, length = arr.length, result;
+
+			for(i < length; i++;){
+				result = callback(arr[i],i);
+			}
+
+			return result;
 		}
 	};	
 })();
