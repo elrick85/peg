@@ -12,10 +12,7 @@ module.exports = function (grunt) {
 		peg: {
 			example: {
 				src: "source/parser.peg",
-				dest: "build/parser.js",
-				options: {
-					output: "source"
-				}
+				dest: "build/parser.js"
 			}
 		},
 		watch: {
@@ -30,5 +27,5 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-peg');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 
-	grunt.registerTask('default', ['peg', 'mochaTest', 'watch']);
+	grunt.registerTask('default', ['peg', 'mochaTest']);
 };
