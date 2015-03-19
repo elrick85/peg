@@ -4,25 +4,57 @@
  */
 {
 	var test = require("../source/config");
+	var op = function(operation, left, right){
+		switch(operation){
+			case "||":
+			case "or":
+				return +(left || right);
+			case "&&":
+			case "and":
+				return +(left && right);
+		}
+	};
+	
+	var conditionOp = function(condition, left, right){
+		switch(condition){
+			case "==":
+				return +(left == right);
+			case "!=":
+				return +(left != right);
+			case ">=":
+				return +(left >= right);
+			case "<=":
+				return +(left <= right);
+			case ">":
+				return +(left > right);
+			case "<":
+				return +(left < right);
+		}
+	};
+	
+	var digitsOp = function(op, left, right){
+		switch(op){
+			case "<<":
+				return left << right;
+			case ">>":
+				return left >> right;
+			case "^":
+				return left ^ right;
+			case "%":
+				return left % right;
+		}
+	};
 }
 
 start = extcondition / conditions
 
 extcondition
-	= left:conditions space "or" space right:extcondition { return +(left || right); }
-	/ left:conditions space "||" space right:extcondition { return +(left || right); }
-	/ left:conditions space "and" space right:extcondition { return +(left && right); }
-	/ left:conditions space "&&" space right:extcondition { return +(left && right); }
+	= left:conditions space operation:("||" / "or" / "&&" / "and") space right:extcondition { return op(operation, left, right); }
 	/ space "not" space right:conditions { return +(!right); }
 	/ conditions
 
 conditions
-	= left:actions space "==" space right:actions { return +(left == right); }
-	/ left:actions space "!=" space right:actions { return +(left != right) }
-	/ left:actions space ">=" space right:actions { return +(left >= right); }
-	/ left:actions space "<=" space right:actions { return +(left <= right); }
-	/ left:actions space ">" space right:actions { return +(left > right); }
-	/ left:actions space "<" space right:actions { return +(left < right); }
+	= left:actions space condition:("==" / "!=" / ">=" / "<=" / ">" / "<") space right:actions { return conditionOp(condition, left, right); }
 	/ actions
 
 actions	= left:primary right:(subsubstriction / subadditive)+ {
@@ -48,15 +80,11 @@ subdivision	= space "/" space right:primaryDigits { return 1/right; }
 submultiply	= space "*" space right:primaryDigits { return right; }
 
 primaryDigits
-	= s:specialstr ".hex" { return "0x" + s; }
-	/ s:specialstr space "." space right:specialstr ".length" { return (s+right).length; }
-	/ s:specialstr ".length" { return s.length; }
-	/ left:digits space "<<" space right:primary { return left << right; }
-	/ left:digits space ">>" space right:primary { return left >> right; }
+	= s:stringRules ".hex" { return "0x" + s; }
+	/ s:stringRules "." "length" { return s.length; }
+	/ left:digits space operation:("<<" / ">>" / "^" / "%") space right:primary { return digitsOp(operation, left, right); }
 	/ left:digits space "&" space right:digits { return left & right; }
 	/ left:digits space "|" space right:digits { return left | right; }
-	/ left:digits space "^" space right:primary { return left ^ right; }
-	/ left:digits space "%" space right:primary { return left % right; }
 	/ digits
 
 digits
@@ -71,12 +99,11 @@ stringRules
 	/ strings
 
 strings
-	= s:specialstr "[" start:integer ":" stop:integer "]" { return s.substring(start, stop); }
-	/ s:specialstr "[:" stop:integer "]" { return s.substring(0, stop);	}
-	/ s:specialstr "[" start:integer ":]" { return s.substring(start, s.length); }
-	/ specialstr
+	= s:str "[" start:integer ":" stop:integer "]" { return s.substring(start, stop); }
+	/ s:str "[:" stop:integer "]" { return s.substring(0, stop);	}
+	/ s:str "[" start:integer ":]" { return s.substring(start, s.length); }
+	/ str
 
-specialstr = left:str* { return left.join(""); } / str
 rand = "rand(" max:integer ")" {
 	if(max <= 1){
 		return 0;
@@ -84,7 +111,7 @@ rand = "rand(" max:integer ")" {
 	
 	return Math.floor(Math.random() * (max - 1));
 }
-str "string" = "'" s:[a-zA-Z0-9 ]* "'" { return s.join(""); }
+str "string" = "'" s:([a-zA-Z0-9 ] / "''")* "'" { return s.join(""); }
 hex "hex" = "0x" string:[a-zA-Z0-9]+ { return "0x" + string.join(""); }
 integer "integer" = digits:[0-9]+ { return parseInt(digits.join(""), 10); }
 space "space" = sps:[ ]* { return sps; }
