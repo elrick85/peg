@@ -118,12 +118,6 @@ space "space" = sps:[ ]* { return sps; }
 
 variables
 	= integerVariables
-	/ variable:"ip" { return test.ip; }
-	/ variable:"sn" { return test.sn; }
-	/ variable:"mac" { return test.mac; }
-	/ variable:"model" { return test.model; }
+	/ variable:("ip" / "sn" / "mac" / "model") { return test[variable]; }
 
-integerVariables
-	= variable:"tasks" { return test.tasks; }
-	/ variable:"zip" { return test.zip; }
-	/ variable:"node" { return test.node; }
+integerVariables = variable:("tasks" / "zip" / "node") { return test[variable]; }
